@@ -76,7 +76,7 @@ static bool CheckIfSymbol(char c)
         return true;
     else if (c > 'Z' && c < 'a')
         return true;
-    else if (c > 'z' && c <= 127)
+    else if (c > 'z' /* && c <= 127 */)
         return true;
     return false;
 }
