@@ -7,6 +7,9 @@
 - 脏词替换
 - 全字匹配
 
+缺陷：
+- 仅支持utf8编码
+
 ## LICENSE
 
 DO WHAT THE FVCK YOU WANT TO PUBLIC LICENSE
