@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 
 #include "DirtyWordChecker.h"
 
@@ -10,6 +11,20 @@ string ReplaceTestHelper(DirtyWordChecker& pChecker, const char* pInput)
     string tRet(pInput);
     pChecker.ReplaceDirtyWord((char*)tRet.data(), '*');
     return tRet;
+}
+
+size_t LoadSensitiveWords(DirtyWordChecker& pChecker, const char* pszPath)
+{
+    ifstream tInputFile(pszPath);
+
+    size_t iCount = 0;
+    string tLine;
+    while (std::getline(tInputFile, tLine))
+    {
+        ++iCount;
+        pChecker.AddWord(tLine.c_str());
+    }
+    return iCount;
 }
 
 void ChineseModeTest()
@@ -86,3 +101,22 @@ int main()
 
     return 0;
 }
+
+/*
+int main()
+{
+    DirtyWordChecker tChecker;
+
+    cout << "loading sensitive words..." << endl;
+    cout << "sensitive count=" << LoadSensitiveWords(tChecker, "SensitiveWords.txt") << endl;
+    cout << "finish load." << endl;
+
+    while (!cin.eof())
+    {
+        std::string tLine;
+        if (std::getline(cin, tLine))
+            cout << ReplaceTestHelper(tChecker, (char*)tLine.data()) << endl;
+    }
+    return 0;
+}
+*/

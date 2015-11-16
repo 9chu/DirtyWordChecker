@@ -125,70 +125,66 @@ bool DirtyWordChecker::CheckDirtyWord(const char* pszContent)const  // 预计复
     if (!pszContent || !m_pRootTrieNode)
         return false;
 
-    while (true)
+    while (*pszContent != '\0')
     {
-        if (m_bWholeWordMode)  // 全字匹配模式下跳过符号字符
+        if (m_bWholeWordMode && CheckIfSymbol(*pszContent))  // 全字匹配模式下跳过符号字符
         {
-            while (CheckIfSymbol(*pszContent))
-                ++pszContent;
+            ++pszContent;
+            continue;
         }
-
-        if (*pszContent == '\0')
-            return false;
 
         size_t iLengthOut;
         if (MatchDirtyWord(m_pRootTrieNode, pszContent, m_bWholeWordMode, iLengthOut))  // 全字匹配模式下需要匹配最长串
         {
-            if (!m_bWholeWordMode)
-                return true;
-            else
+            if (m_bWholeWordMode)
             {
                 // 全字匹配模式下需要检查后继字符是否为符号
                 if (pszContent[iLengthOut] == '\0' || CheckIfSymbol(pszContent[iLengthOut]))
                     return true;
             }
+            else
+                return true;
         }
 
-        if (!m_bWholeWordMode)
-            ++pszContent;
-        else
+        if (m_bWholeWordMode)
         {
-            // 全字匹配模式下若不能找到一个匹配，则跳过所有字符直到符号
+            // 全字匹配模式下若不能找到一个匹配，则忽略当前单词、跳过所有字符直到符号
             while (*pszContent != '\0' && !CheckIfSymbol(*pszContent))
                 ++pszContent;
         }
+        else
+            ++pszContent;
     }
+
+    return false;
 }
 
-bool DirtyWordChecker::ReplaceDirtyWord(char* pszContent, char cReplaceChar)const
+bool DirtyWordChecker::ReplaceDirtyWord(char* pszContent, char cReplaceChar)const  // 预计复杂度O(nm)
 {
     if (!pszContent || !m_pRootTrieNode)
         return false;
 
     bool bReplaced = false;
-    while (true)
+    while (*pszContent != '\0')
     {
-        if (m_bWholeWordMode)  // 全字匹配模式下跳过符号字符
+        if (m_bWholeWordMode && CheckIfSymbol(*pszContent))  // 全字匹配模式下跳过符号字符
         {
-            while (CheckIfSymbol(*pszContent))
-                ++pszContent;
+            ++pszContent;
+            continue;
         }
-
-        if (*pszContent == '\0')
-            return bReplaced;
 
         size_t iLengthOut;
         bool bShouldReplace = false;
         if (MatchDirtyWord(m_pRootTrieNode, pszContent, true, iLengthOut))  // 替换模式下需要匹配最长串
         {
-            if (!m_bWholeWordMode)
-                bShouldReplace = true;
-            else
+            if (m_bWholeWordMode)
             {
                 // 全字匹配模式下需要检查后继字符是否为符号
                 if (pszContent[iLengthOut] == '\0' || CheckIfSymbol(pszContent[iLengthOut]))
                     bShouldReplace = true;
             }
+            else
+                bShouldReplace = true;
 
             if (bShouldReplace)
             {
@@ -200,16 +196,18 @@ bool DirtyWordChecker::ReplaceDirtyWord(char* pszContent, char cReplaceChar)cons
             }
         }
 
-        if (!bShouldReplace)
+        if (!bShouldReplace)  // 没有替换发生
         {
-            if (!m_bWholeWordMode)
-                ++pszContent;
-            else
+            if (m_bWholeWordMode)
             {
                 // 全字匹配模式下若不能找到一个匹配，则跳过所有字符直到符号
                 while (*pszContent != '\0' && !CheckIfSymbol(*pszContent))
                     ++pszContent;
             }
+            else
+                ++pszContent;
         }
     }
+
+    return bReplaced;
 }
